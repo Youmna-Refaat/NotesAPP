@@ -15,22 +15,35 @@ class EditNoteViewBody extends StatefulWidget {
 }
 
 class _EditNoteViewBodyState extends State<EditNoteViewBody> {
-  String? title, content;
+  late final TextEditingController titleController;
+  late final TextEditingController contentController;
+
+  @override
+  void initState() {
+    super.initState();
+    titleController = TextEditingController(text: widget.note.title);
+    contentController = TextEditingController(text: widget.note.content);
+  }
+
+  @override
+  void dispose() {
+    titleController.dispose();
+    contentController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 24,
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         children: [
-          const SizedBox(
-            height: 50,
-          ),
+          const SizedBox(height: 50),
           CustomAppBar(
             onPressed: () {
-              widget.note.title = title ?? widget.note.title;
-              widget.note.content = content ?? widget.note.content;
+              widget.note.title = titleController.text;
+              widget.note.content = contentController.text;
+
               widget.note.save();
               BlocProvider.of<NotesCubit>(context).fetchNotes();
               Navigator.pop(context);
@@ -38,31 +51,19 @@ class _EditNoteViewBodyState extends State<EditNoteViewBody> {
             title: 'Edit Note',
             icon: Icons.check,
           ),
-          const SizedBox(
-            height: 50,
-          ),
+          const SizedBox(height: 50),
           CustomTextField(
-            onChanged: (value) {
-              title = value;
-            },
-            hintText: widget.note.title,
+            controller: titleController,
+            hintText: 'Title',
           ),
-          const SizedBox(
-            height: 16,
-          ),
+          const SizedBox(height: 16),
           CustomTextField(
-            onChanged: (value) {
-              content = value;
-            },
-            hintText: widget.note.content,
+            controller: contentController,
+            hintText: 'Content',
             maxLines: 5,
           ),
-          const SizedBox(
-            height: 16,
-          ),
-          EditNoteColorsList(
-            note: widget.note,
-          ),
+          const SizedBox(height: 16),
+          EditNoteColorsList(note: widget.note),
         ],
       ),
     );
